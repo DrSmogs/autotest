@@ -32,7 +32,6 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
         self.to = to
         self.Resource = resource
         resp= {}
-        resp['command']=cmd
 
         try:
             out = self['iq3'].get_cmd(cmd, self.jid, self.to, self.Resource)
@@ -46,42 +45,61 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
 
         else:
 
+        # items not yet implemented
+        # error_reporting - not implemented - i dont think this is working on the box?
 
-        # register_stanza_plugin(Iq, error_reporting)
-        # register_stanza_plugin(Iq, diagnostic_hdd)
-        # register_stanza_plugin(Iq, diagnostic_tuner)
-        # register_stanza_plugin(Iq, diagnostic_speed_test)
-        # register_stanza_plugin(Iq, system_information)
-        # register_stanza_plugin(Iq, volume)
-        # register_stanza_plugin(Iq, current_viewing)
-        # register_stanza_plugin(Iq, current_programme)
-        # register_stanza_plugin(Iq, remote_control)
-        # register_stanza_plugin(Iq, reset_pin)
-        # register_stanza_plugin(Iq, reboot_stb)
-        # register_stanza_plugin(Iq, code_download)
-        # register_stanza_plugin(Iq, stb_model)
-        # register_stanza_plugin(Iq, dvbt_services)
-        # register_stanza_plugin(Iq, remote_booking)
+        # dvbt_services - Not Tested - returning no results from box
+        # planner_managment - item cycling needed
+
         # register_stanza_plugin(Iq, epg_managment)
             try: #try and extract the useful info
                 if cmd=='error_reporting':
 
-                    resp['error'] = "Not yet implemented" #not yet implemented - need a way to cycle through items
+                    resp['error_report'] = out.xml.findall('{foxtel:iq}error_reporting/{foxtel:iq}error').text
+
 
                 elif cmd=='diagnostic_hdd':
 
-                    resp['temperature'] = out.xml.find('{foxtel:iq}diagnostic_hdd{foxtel:iq}hdd/{foxtel:iq}temperature').text
+                    resp['temperature'] = out.xml.find('{foxtel:iq}diagnostic_hdd/{foxtel:iq}hdd/{foxtel:iq}temperature').text
 
 
                 elif cmd=='diagnostic_tuner':
 
-                    resp['error'] = "Not yet implemented" #not yet implemented - need a way to cycle through items
+                    resp['tuners'] = []
+                    tuners=out.xml.findall('{foxtel:iq}diagnostic_tuner/{foxtel:iq}tuner')
+                    for tuner in tuners:
+                        tunerdict={}
+                        tunerdict['tuner_number'] = tuner.find('{foxtel:iq}tuner_number').text
+                        tunerdict['frequency'] = tuner.find('{foxtel:iq}frequency').text
+                        tunerdict['type'] = tuner.find('{foxtel:iq}type').text
+                        tunerdict['locked'] = tuner.find('{foxtel:iq}locked').text
+                        try:
+                            tunerdict['level_dBm'] = tuner.find('{foxtel:iq}level').text
+                            quality = tuner.findall('{foxtel:iq}quality')
+
+                        except:
+                            tunerdict['level_dBm'] = 'N/A'
+                            tunerdict['quality_snr_db'] = 'N/A'
+                            tunerdict['quality_uncorrected_ber'] = 'N/A'
+
+                        else:
+                            for qual in quality:
+
+                                if qual.attrib['type']=="signal_to_noise":
+                                    tunerdict['quality_snr_db'] = qual.text
+
+                                elif qual.attrib['type']=="uncorrected_BER":
+                                    tunerdict['quality_uncorrected_ber'] = qual.text
+
+                                elif qual.attrib['type']=="corrected_BER":
+                                    tunerdict['quality_corrected_ber'] = qual.text
+
+                        resp['tuners'].append(tunerdict)
 
                 elif cmd=='diagnostic_speed_test':
 
                     resp['received'] = out.xml.find('{foxtel:iq}diagnostic_speed_test/{foxtel:iq}speed_test/{foxtel:iq}received').text
-                    resp['time'] = out.xml.find('{foxtel:iq}diagnostic_speed_test/{foxtel:iq}Speed_test/{foxtel:iq}time').text
-
+                    resp['time'] = out.xml.find('{foxtel:iq}diagnostic_speed_test/{foxtel:iq}speed_test/{foxtel:iq}time').text
                 elif cmd=='system_information':
 
                     resp['manufacturer'] = out.xml.find('{foxtel:iq}system_information/{foxtel:iq}manufacturer').text
@@ -117,77 +135,48 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
                     resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
                     resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
 
-                elif cmd=='current_programme':
+                elif cmd=='remote_control':
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                    resp['error'] = "There is no get function for remote_control"
 
-                elif cmd=='current_programme':
+                elif cmd=='reset_pin':
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                    resp['error'] = "There is no get function for reset_pin"
 
-                elif cmd=='current_programme':
+                elif cmd=='reboot_stb':
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                    resp['error'] = "There is no get function for reboot_stb"
 
-                elif cmd=='current_programme':
+                elif cmd=='code_download':
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                    resp['error'] = "There is no get function for code_download"
 
-                elif cmd=='current_programme':
+                elif cmd=='stb_model':
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                    resp['model'] = out.xml.find('{foxtel:iq}stb_model/{foxtel:iq}model').text #This works in the API - but not working on the box
 
-                elif cmd=='current_programme':
+                elif cmd=='dvbt_services':
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                    resp['services'] = []
+                    services=out.xml.findall('{foxtel:iq}dvbt_services/{foxtel:iq}service')
+                    for service in services:
+                        servicedict={}
+                        servicedict['onid'] = service.find('{foxtel:iq}onid').text
+                        servicedict['tsid'] = service.find('{foxtel:iq}tsid').text
+                        servicedict['freq'] = service.find('{foxtel:iq}freq').text
+                        servicedict['svl_entry'] = service.find('{foxtel:iq}svl_entry').text
+                        servicedict['network_name'] = service.find('{foxtel:iq}network_name').text
+                        servicedict['svc_name'] = service.find('{foxtel:iq}svc_name').text
 
-                elif cmd=='current_programme':
+                        resp['services'].append(servicedict)
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                elif cmd=='remote_booking':
 
-                elif cmd=='current_programme':
+                    resp['error'] = "There is no get function for remote_booking"
 
-                    resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
-                    resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
-                    resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
-                    resp['synopsys'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}synopsys').text
-                    resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
-                    resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
+                elif cmd=='planner_managment':
+
+                    resp['error'] = "Not Yet implemented" #need to loop through services - not sure how to do that yet
 
                 else:
                     resp['error'] = "Unknown command"

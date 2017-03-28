@@ -48,36 +48,17 @@ class iq3(BasePlugin):
         iq['id'] = tjid + "-" + str(int(time.time()))
         iq['xml:lang'] = 'en'
         iq['type'] = 'get'
+        if cmd=='error_reporting':
+            iq['error_reporting']['get_error']='reboot'
         iq.enable(cmd)
+
         resp = iq.send(block=True)
 
         return resp
 
 
 
-    def get_current_programme(self, jid=None, tjid=None, resource='iq3'):
-        iq = self.xmpp.Iq()
-        iq['from'] = jid + "/" + resource
-        iq['to'] = tjid + "/" + resource
-        iq['id'] = tjid + "-" + str(int(time.time()))
-        iq['xml:lang'] = 'en'
-        iq['type'] = 'get'
-        iq.enable('current_programme')
-        resp = iq.send(block=True)
 
-        return resp
-
-    def get_error_reporting(self, jid=None, tjid=None, resource='iq3'):
-        iq = self.xmpp.Iq()
-        iq['from'] = jid + "/" + resource
-        iq['to'] = tjid + "/" + resource
-        iq['id'] = tjid + "-" + str(int(time.time()))
-        iq['xml:lang'] = 'en'
-        iq['type'] = 'get'
-        iq.enable('error_reporting')
-        resp = iq.send(block=True)
-
-        return resp
 
 
 

@@ -76,7 +76,7 @@ class error_reporting(ElementBase):
     namespace = "foxtel:iq"
     name = 'error_reporting'
     plugin_attrib = 'error_reporting'
-    interfaces = set(('error_reporting','set_error'))
+    interfaces = set(('error_reporting','set_error','all_errors','get_error'))
     sub_interfaces = interfaces
 
 class diagnostic_hdd(ElementBase):
@@ -87,6 +87,7 @@ class diagnostic_hdd(ElementBase):
     interfaces = set(('diagnostic_hdd','hdd','reformat'))
     sub_interfaces = interfaces
 
+
 class diagnostic_tuner(ElementBase):
 
     namespace = "foxtel:iq"
@@ -94,6 +95,7 @@ class diagnostic_tuner(ElementBase):
     plugin_attrib = 'diagnostic_tuner'
     interfaces = set(('diagnostic_tuner'))
     sub_interfaces = interfaces
+
 
 class diagnostic_speed_test(ElementBase):
 

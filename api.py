@@ -16,6 +16,8 @@ import sys
 import getpass
 import socket
 
+import time
+
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -111,10 +113,14 @@ def processRequest(req):
         return "Error!!! something went wrong with the request"
 
     else:
+        data['command']=command
+        data['request']=request
+        data['timestamp']= str(int(time.time()))
+        data['results']={}
         if request=='get':
             for box in boxes:
 
-                data[box] = xmpp.get_cmd(command,box,'iq3')
+                data['results'][box] = xmpp.get_cmd(command,box,'iq3')
             return data
 
         elif request=='set':
