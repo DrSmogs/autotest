@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#runs and execures a command on any api request to pre-set defaults so you can see if its working
+
 from __future__ import print_function
 from future import standard_library
 
@@ -26,7 +28,7 @@ from sleekxmpp.exceptions import IqError, IqTimeout
 
 import sleekxmpp
 import iq3 #custom stanza stuff for iQ3 unit
-from iq3_cmd import iq3_cmd #class and functions for sending iQ3 commands and processing responses
+from iq3_cmd import iq3_cmd #class and functions for sending iQ3 commands - returns dictionary back in resp
 
 from flask import Flask, request, make_response, render_template #API stuff
 from flask_httpauth import HTTPBasicAuth #http auth plugin for flask... need a password!
@@ -71,50 +73,16 @@ xmpp.register_plugin('iq3', module=iq3) # custom iQ3 stanza plugin
 @app.route('/api', methods=['POST'])
 @auth.login_required
 def api():
-    req = request.get_json(silent=True, force=True)
 
-    print("Request:")
-    print(json.dumps(req, indent=4))
-
-    res = processRequest(req)
-
-    res = json.dumps(res, indent=4)
-    print(res)
-    r = make_response(res)
-    r.headers['Content-Type'] = 'application/json'
-    return r
-
+    #put command here
+    data = xmpp.get_current('boxymcboxface@xmpp.iamshaw.net','iq3')
+    #print data
+    print(data)
 
 @auth.error_handler
 def auth_error():
     return "&lt;h1&gt;Access Denied Beeyatch! &lt;/h1&gt;"
 
-
-
-def processRequest(req):
-    data={}
-    try:
-        command=req.get('command')
-        boxes = req.get('boxes')
-        print(boxes)
-        if command is None:
-            return "No command"
-
-        if boxes is None:
-            return "No Boxes"
-    except:
-        return "Error!!!"
-
-    else:
-        if command=='current_viewing':
-
-            for box in boxes:
-                print(box)
-                data[box] = xmpp.get_current(box,'iq3')
-            return data
-
-        else:
-            return {}
 
 # once xmpp client is connected - send presence and roster as expected
 def session_start(e):

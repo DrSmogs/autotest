@@ -10,4 +10,9 @@ class config:
     resource = 'iq3' # resource for the iQ3 unit - will alkways be iQ3
     apiusername = 'cpeadmin' #username to access the api
     apipassword = 'Foxtel01' #password to access the api
-    serverport = '5000' #port to run the server on
+    serverport = 5000 #port to run the server on
+    apiusers= {
+        "cpeadmin": "Foxtel01",
+        "James": "isawesome"
+    }
+    tojid='boxymcboxface@xmpp.iamshaw.net'
