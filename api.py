@@ -95,26 +95,34 @@ def processRequest(req):
     data={}
     try:
         command=req.get('command')
+        request=req.get('request')
         boxes = req.get('boxes')
-        print(boxes)
+
+
         if command is None:
             return "No command"
 
         if boxes is None:
             return "No Boxes"
+
+        if request is None:
+            return "No request type!"
     except:
-        return "Error!!!"
+        return "Error!!! something went wrong with the request"
 
     else:
-        if command=='current_viewing':
-
+        if request=='get':
             for box in boxes:
-                print(box)
-                data[box] = xmpp.get_current(box,'iq3')
+
+                data[box] = xmpp.get_cmd(command,box,'iq3')
             return data
 
+        elif request=='set':
+
+            #stuff for setting
+            return "Have not implemented set yet"
         else:
-            return {}
+            return "request must either be a set or get!"
 
 # once xmpp client is connected - send presence and roster as expected
 def session_start(e):

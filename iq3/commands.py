@@ -41,6 +41,20 @@ class iq3(BasePlugin):
 
         self.sessions = {};
 
+    def get_cmd(self, cmd=None, jid=None, tjid=None, resource='iq3'):
+        iq = self.xmpp.Iq()
+        iq['from'] = jid + "/" + resource
+        iq['to'] = tjid + "/" + resource
+        iq['id'] = tjid + "-" + str(int(time.time()))
+        iq['xml:lang'] = 'en'
+        iq['type'] = 'get'
+        iq.enable(cmd)
+        resp = iq.send(block=True)
+
+        return resp
+
+
+
     def get_current_programme(self, jid=None, tjid=None, resource='iq3'):
         iq = self.xmpp.Iq()
         iq['from'] = jid + "/" + resource
@@ -52,6 +66,19 @@ class iq3(BasePlugin):
         resp = iq.send(block=True)
 
         return resp
+
+    def get_error_reporting(self, jid=None, tjid=None, resource='iq3'):
+        iq = self.xmpp.Iq()
+        iq['from'] = jid + "/" + resource
+        iq['to'] = tjid + "/" + resource
+        iq['id'] = tjid + "-" + str(int(time.time()))
+        iq['xml:lang'] = 'en'
+        iq['type'] = 'get'
+        iq.enable('error_reporting')
+        resp = iq.send(block=True)
+
+        return resp
+
 
 
     def set_viewing(self, jid=None, tjid=None, resource=None, chan=None):
