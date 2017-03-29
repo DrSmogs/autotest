@@ -38,33 +38,30 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
 
         except IqError as e:
 
-            resp['error_condition'] =str(e.condition)
-            resp['error_text'] = str(e.text)
+            resp['error'] =str(e.condition)
+
         except IqTimeout:
             resp['error_condition'] = "Box Timeout"
 
         else:
+            # items not yet implemented
+            # error_reporting - not implemented - i dont think this is working on the box?
 
-        # items not yet implemented
-        # error_reporting - not implemented - i dont think this is working on the box?
+            # dvbt_services - Not Tested - returning no results from box
+            # planner_managment - item cycling needed
 
-        # dvbt_services - Not Tested - returning no results from box
-        # planner_managment - item cycling needed
+            # register_stanza_plugin(Iq, epg_managment)
 
-        # register_stanza_plugin(Iq, epg_managment)
-            try: #try and extract the useful info
+            try: #run the extract commands - return an error if they don't work
+
                 if cmd=='error_reporting':
 
-                    resp['error_report'] = out.xml.findall('{foxtel:iq}error_reporting/{foxtel:iq}error').text
-
+                    resp['error_report'] = out.xml.findall('{foxtel:iq}error_reporting/{foxtel:iq}error').text #not implemented??
 
                 elif cmd=='diagnostic_hdd':
-
                     resp['temperature'] = out.xml.find('{foxtel:iq}diagnostic_hdd/{foxtel:iq}hdd/{foxtel:iq}temperature').text
 
-
                 elif cmd=='diagnostic_tuner':
-
                     resp['tuners'] = []
                     tuners=out.xml.findall('{foxtel:iq}diagnostic_tuner/{foxtel:iq}tuner')
                     for tuner in tuners:
@@ -97,11 +94,10 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
                         resp['tuners'].append(tunerdict)
 
                 elif cmd=='diagnostic_speed_test':
-
                     resp['received'] = out.xml.find('{foxtel:iq}diagnostic_speed_test/{foxtel:iq}speed_test/{foxtel:iq}received').text
                     resp['time'] = out.xml.find('{foxtel:iq}diagnostic_speed_test/{foxtel:iq}speed_test/{foxtel:iq}time').text
-                elif cmd=='system_information':
 
+                elif cmd=='system_information':
                     resp['manufacturer'] = out.xml.find('{foxtel:iq}system_information/{foxtel:iq}manufacturer').text
                     resp['hardware_version'] = out.xml.find('{foxtel:iq}system_information/{foxtel:iq}hardware_version').text
                     resp['software_version'] = out.xml.find('{foxtel:iq}system_information/{foxtel:iq}software_version').text
@@ -111,13 +107,10 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
                     resp['epg_version'] = out.xml.find('{foxtel:iq}system_information/{foxtel:iq}epg_version').text
 
                 elif cmd=='volume':
-
                     resp['current_volume'] = out.xml.find('{foxtel:iq}volume/{foxtel:iq}current_volume').text
                     resp['mute'] = out.xml.find('{foxtel:iq}volume/{foxtel:iq}mute').text
 
-
                 elif cmd=='current_viewing': #need to add in variants for recording and ip.. only braodcast below
-
                     resp['type'] = out.xml.find('{foxtel:iq}current_viewing/{foxtel:iq}broadcast/{foxtel:iq}type').text
                     resp['lcn'] = out.xml.find('{foxtel:iq}current_viewing/{foxtel:iq}broadcast/{foxtel:iq}lcn').text
                     resp['onid'] = out.xml.find('{foxtel:iq}current_viewing/{foxtel:iq}broadcast/{foxtel:iq}onid').text
@@ -127,7 +120,6 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
                     resp['name'] = out.xml.find('{foxtel:iq}current_viewing/{foxtel:iq}broadcast/{foxtel:iq}name').text
 
                 elif cmd=='current_programme':
-
                     resp['event_name'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_name').text
                     resp['start_time'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}start_time').text
                     resp['event_length'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}event_length').text
@@ -135,63 +127,33 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
                     resp['genre'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}genre').text
                     resp['parental_rating'] = out.xml.find('{foxtel:iq}current_programme/{foxtel:iq}programme/{foxtel:iq}parental_rating').text
 
-                elif cmd=='remote_control':
-
-                    resp['error'] = "There is no get function for remote_control"
-
-                elif cmd=='reset_pin':
-
-                    resp['error'] = "There is no get function for reset_pin"
-
-                elif cmd=='reboot_stb':
-
-                    resp['error'] = "There is no get function for reboot_stb"
-
-                elif cmd=='code_download':
-
-                    resp['error'] = "There is no get function for code_download"
-
                 elif cmd=='stb_model':
-
                     resp['model'] = out.xml.find('{foxtel:iq}stb_model/{foxtel:iq}model').text #This works in the API - but not working on the box
 
                 elif cmd=='dvbt_services':
-
                     resp['services'] = []
                     services=out.xml.findall('{foxtel:iq}dvbt_services/{foxtel:iq}service')
                     for service in services:
                         servicedict={}
                         servicedict['onid'] = service.find('{foxtel:iq}onid').text
-                        servicedict['tsid'] = service.find('{foxtel:iq}tsid').text
-                        servicedict['freq'] = service.find('{foxtel:iq}freq').text
-                        servicedict['svl_entry'] = service.find('{foxtel:iq}svl_entry').text
-                        servicedict['network_name'] = service.find('{foxtel:iq}network_name').text
+                        servicedict['service_key'] = service.find('{foxtel:iq}service_key').text
                         servicedict['svc_name'] = service.find('{foxtel:iq}svc_name').text
+                        servicedict['svcid'] = service.find('{foxtel:iq}svcid').text
+                        servicedict['tsid'] = service.find('{foxtel:iq}tsid').text        
 
                         resp['services'].append(servicedict)
-
-                elif cmd=='remote_booking':
-
-                    resp['error'] = "There is no get function for remote_booking"
 
                 elif cmd=='planner_managment':
 
                     resp['error'] = "Not Yet implemented" #need to loop through services - not sure how to do that yet
 
                 else:
-                    resp['error'] = "Unknown command"
+                    resp['error'] = "Unknown command \'" + cmd + "\'."
+            except: #failed to extract stanza
+                resp['error'] = "Stanza received for \'" + cmd + "\' was a different structure to expected"
 
-
-            except:
-                resp['error'] = "Stnza reply was different to what was expected"
 
         return resp
-
-
-
-
-
-
 
 
 

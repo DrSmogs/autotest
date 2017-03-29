@@ -42,14 +42,14 @@ class iq3(BasePlugin):
         self.sessions = {};
 
     def get_cmd(self, cmd=None, jid=None, tjid=None, resource='iq3'):
+
         iq = self.xmpp.Iq()
         iq['from'] = jid + "/" + resource
         iq['to'] = tjid + "/" + resource
         iq['id'] = tjid + "-" + str(int(time.time()))
         iq['xml:lang'] = 'en'
         iq['type'] = 'get'
-        if cmd=='error_reporting':
-            iq['error_reporting']['get_error']='reboot'
+
         iq.enable(cmd)
 
         resp = iq.send(block=True)

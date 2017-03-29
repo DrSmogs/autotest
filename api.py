@@ -118,18 +118,32 @@ def processRequest(req):
         data['timestamp']= str(int(time.time()))
         data['results']={}
         if request=='get':
-            for box in boxes:
 
-                data['results'][box] = xmpp.get_cmd(command,box,'iq3')
-            return data
+            if command in("error_reporting","diagnostic_hdd","diagnostic_tuner","diagnostic_speed_test","system_information","volume",
+                "current_viewing","current_programme","stb_model","dvbt_services","planner_management"):
+                 # if if is in a list of supported get stanzas
+
+                for box in boxes:
+
+                    data['results'][box] = xmpp.get_cmd(command,box,'iq3')
+
+            elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):
+                 # if its a stanza but does not support a get
+
+                data['error'] = "\'" + command + "\' does not support a get function."
+
+            else:
+                data['error'] = "Unknown command \'" + command + "\'."
+
 
         elif request=='set':
 
             #stuff for setting
-            return "Have not implemented set yet"
+            data['error']= "Have not implemented set yet"
         else:
-            return "request must either be a set or get!"
+            data['error']= "Request must either be a set or get!"
 
+        return data
 # once xmpp client is connected - send presence and roster as expected
 def session_start(e):
     xmpp.get_roster()
