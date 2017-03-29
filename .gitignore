@@ -1,3 +1,8 @@
+#ignore files for this project
+config.py
+
+ #this is the config file... edit config-blank.py and save as config.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
