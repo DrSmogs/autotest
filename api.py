@@ -32,6 +32,7 @@ from iq3_cmd import iq3_cmd #class and functions for sending iQ3 commands and pr
 
 from flask import Flask, request, make_response, render_template #API stuff
 from flask_httpauth import HTTPBasicAuth #http auth plugin for flask... need a password!
+from flask_cors import CORS, cross_origin
 
 from config import config # config file for app - make sure you rename config-blank.py and fill out values
 
@@ -46,6 +47,7 @@ else:
 
 # Flask app should start in global layout
 app = Flask(__name__)
+CORS(app)
 auth = HTTPBasicAuth()
 
 users = config.apiusers
@@ -116,7 +118,7 @@ def processRequest(req):
         data['command']=command
         data['request']=request
         data['timestamp']= str(int(time.time()))
-        data['results']={}
+        data['results']=[]
         if request=='get':
 
             if command in("error_reporting","diagnostic_hdd","diagnostic_tuner","diagnostic_speed_test","system_information","volume",
@@ -125,7 +127,8 @@ def processRequest(req):
 
                 for box in boxes:
                     boxjid = box+config.boxloginpart+'@'+config.xmppdomain
-                    data['results'][box] = xmpp.get_cmd(command,boxjid,'iq3')
+                    listitem = xmpp.get_cmd(command,boxjid,'iq3')
+                    data['results'].append(listitem)
 
             elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):
                  # if its a stanza but does not support a get
