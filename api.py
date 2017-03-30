@@ -60,7 +60,7 @@ def get_pw(username):
 
 
 # setup the xmpp connection for controlling the iQ3
-xmpp = iq3_cmd(config.loginjid, config.loginpw)
+xmpp = iq3_cmd((config.loginjid + '@' + config.xmppdomain), config.loginpw)
 xmpp.register_plugin('xep_0030') # Service Discovery
 xmpp.register_plugin('xep_0004') # Data Forms
 xmpp.register_plugin('xep_0060') # PubSub
@@ -124,8 +124,8 @@ def processRequest(req):
                  # if if is in a list of supported get stanzas
 
                 for box in boxes:
-
-                    data['results'][box] = xmpp.get_cmd(command,box,'iq3')
+                    boxjid = box+config.boxloginpart+'@'+config.xmppdomain
+                    data['results'][box] = xmpp.get_cmd(command,boxjid,'iq3')
 
             elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):
                  # if its a stanza but does not support a get
