@@ -8,6 +8,7 @@ import socket
 from sleekxmpp import Iq, ClientXMPP
 from sleekxmpp.xmlstream import ElementBase, register_stanza_plugin, ET
 from sleekxmpp.exceptions import IqError, IqTimeout
+import config
 
 import sleekxmpp
 
@@ -33,7 +34,7 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
         self.Resource = resource
         resp= {}
         resp['box_id'] = box
-        
+
         try:
             out = self['iq3'].get_cmd(cmd, self.jid, self.to, self.Resource)
 
