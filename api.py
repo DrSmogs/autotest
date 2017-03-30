@@ -126,8 +126,8 @@ def processRequest(req):
                  # if if is in a list of supported get stanzas
 
                 for box in boxes:
-                    boxjid = box+config.boxloginpart+'@'+config.xmppdomain
-                    listitem = xmpp.get_cmd(command,boxjid,'iq3')
+
+                    listitem = xmpp.get_cmd(command,box,'iq3')
                     data['results'].append(listitem)
 
             elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):

@@ -28,11 +28,12 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
         sleekxmpp.ClientXMPP.__init__(self, jid, password)
         self.jid = jid
 
-    def get_cmd(self, cmd, to, resource):
-        self.to = to
+    def get_cmd(self, cmd, box, resource):
+        self.to = box+config.boxloginpart+'@'+config.xmppdomain
         self.Resource = resource
         resp= {}
-
+        resp['box_id'] = box
+        
         try:
             out = self['iq3'].get_cmd(cmd, self.jid, self.to, self.Resource)
 
@@ -139,7 +140,7 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
                         servicedict['service_key'] = service.find('{foxtel:iq}service_key').text
                         servicedict['svc_name'] = service.find('{foxtel:iq}svc_name').text
                         servicedict['svcid'] = service.find('{foxtel:iq}svcid').text
-                        servicedict['tsid'] = service.find('{foxtel:iq}tsid').text        
+                        servicedict['tsid'] = service.find('{foxtel:iq}tsid').text
 
                         resp['services'].append(servicedict)
 
