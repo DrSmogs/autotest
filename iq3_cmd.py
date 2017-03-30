@@ -9,8 +9,7 @@ from sleekxmpp import Iq, ClientXMPP
 from sleekxmpp.xmlstream import ElementBase, register_stanza_plugin, ET
 from sleekxmpp.exceptions import IqError, IqTimeout
 import config
-
-import sleekxmpp
+from config import sleekxmpp
 
 import iq3 #custom stnza stuff for iQ3 unit
 
