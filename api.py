@@ -97,6 +97,7 @@ def auth_error():
 
 def processRequest(req):
     data={}
+    paramaters={}
     try:
         command=req.get('command')
         request=req.get('request')
@@ -113,6 +114,13 @@ def processRequest(req):
             return "No request type!"
     except:
         return "Error!!! something went wrong with the request"
+
+    try:
+        parameters=req.get('paramteters')
+
+    except:
+        parameters=None
+    
 
     else:
         data['command']=command
