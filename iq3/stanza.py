@@ -251,7 +251,13 @@ class remote_booking(ElementBase):
                 self.xml.remove(parXML)
 
 
-#planner manager goes here - wait until i understand remote_booking first.
+# planner needs sub items - not sure how to do that yet...
+class planner(ElementBase):
+    namespace = "foxtel:iq"
+    name = 'planner'
+    plugin_attrib = 'planner'
+    interfaces = set(('start','qty','item'))
+    sub_interfaces = set(('item'))
 
 #pushvod goes here - same as above
 

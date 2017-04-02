@@ -48,8 +48,7 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
             # items not yet implemented
             # error_reporting - not implemented - i dont think this is working on the box?
 
-            # dvbt_services - Not Tested - returning no results from box
-            # planner_managment - item cycling needed
+
 
             # register_stanza_plugin(Iq, epg_managment)
 
@@ -144,10 +143,35 @@ class iq3_cmd(sleekxmpp.ClientXMPP):
 
                         resp['services'].append(servicedict)
 
-                elif cmd=='planner_managment':
+                elif cmd=='planner':
+                    resp['items'] = []
+                    items=out.xml.findall('{foxtel:iq}planner/{foxtel:iq}item')
 
-                    resp['error'] = "Not Yet implemented" #need to loop through services - not sure how to do that yet
+                    for item in items:
+                        itemsdict={}
+                        itemsdict['prog_id'] = item.find('{foxtel:iq}prog_id').text
+                        itemsdict['evt_name'] = item.find('{foxtel:iq}evt_name').text
+                        itemsdict['evt_desc'] = item.find('{foxtel:iq}evt_desc').text
+                        itemsdict['genre'] = item.find('{foxtel:iq}genre').text
+                        itemsdict['rating'] = item.find('{foxtel:iq}rating').text
+                        itemsdict['rec_rem_dl'] = item.find('{foxtel:iq}rec_rem_dl').text
+                        itemsdict['state'] = item.find('{foxtel:iq}state').text
+                        itemsdict['keep'] = item.find('{foxtel:iq}keep').text
+                        itemsdict['start_time'] = item.find('{foxtel:iq}start_time').text
+                        itemsdict['file_exp'] = item.find('{foxtel:iq}file_exp').text
+                        itemsdict['dur'] = item.find('{foxtel:iq}dur').text
+                        itemsdict['viewed'] = item.find('{foxtel:iq}viewed').text
+                    #     itemsdict['s_link'] = item.find('{foxtel:iq}s_link').text
+                    #     itemsdict['extend'] = item.find('{foxtel:iq}extend').text
+                    #     itemsdict['error_flags'] = item.find('{foxtel:iq}error_flags').text
 
+                    # tree = ET.parse(out)
+                    # root = tree.getroot()
+                    # print("this is root")
+                    # print(root.attrib)
+                    # resp['TEST']=root.attrib
+
+                    resp['items'].append(itemsdict)
                 else:
                     resp['error'] = "Unknown command \'" + cmd + "\'."
             except: #failed to extract stanza

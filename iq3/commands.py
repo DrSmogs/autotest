@@ -8,6 +8,7 @@ from sleekxmpp.plugins import BasePlugin
 
 from iq3 import stanza, error_reporting, diagnostic_hdd, diagnostic_tuner, diagnostic_speed_test, system_information, volume, current_viewing
 from iq3 import current_programme, remote_control, reset_pin, reboot_stb, code_download, stb_model, dvbt_services, remote_booking, epg_managment
+from iq3 import planner
 
 from sleekxmpp.exceptions import IqError, IqTimeout
 from sleekxmpp.xmlstream.matcher import StanzaPath
@@ -38,6 +39,7 @@ class iq3(BasePlugin):
         register_stanza_plugin(Iq, dvbt_services)
         register_stanza_plugin(Iq, remote_booking)
         register_stanza_plugin(Iq, epg_managment)
+        register_stanza_plugin(Iq, planner)
 
         self.sessions = {};
 
@@ -49,6 +51,9 @@ class iq3(BasePlugin):
         iq['id'] = tjid + "-" + str(int(time.time()))
         iq['xml:lang'] = 'en'
         iq['type'] = 'get'
+        if cmd=='planner':
+            iq['planner']['start'] = '0'
+            iq['planner']['qty'] = '5'
 
         iq.enable(cmd)
 
