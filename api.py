@@ -25,10 +25,15 @@ logging.basicConfig(level=logging.DEBUG)
 from sleekxmpp import Iq, ClientXMPP
 from sleekxmpp.xmlstream import ElementBase, register_stanza_plugin, ET
 from sleekxmpp.exceptions import IqError, IqTimeout
+from sleekxmpp.xmlstream.matcher import StanzaPath
+from sleekxmpp.xmlstream.matcher import MatchXPath
+from sleekxmpp.xmlstream.handler import Callback
+from sleekxmpp.xmlstream.matcher.id import MatcherId
+import xml.etree.ElementTree as ET
 
 import sleekxmpp
 import iq3 #custom stanza stuff for iQ3 unit
-from iq3_cmd import iq3_cmd #class and functions for sending iQ3 commands and processing responses
+# from iq3_cmd import iq3_cmd #class and functions for sending iQ3 commands and processing responses
 
 from flask import Flask, request, make_response, render_template #API stuff
 from flask_httpauth import HTTPBasicAuth #http auth plugin for flask... need a password!
@@ -62,7 +67,7 @@ def get_pw(username):
 
 
 # setup the xmpp connection for controlling the iQ3
-xmpp = iq3_cmd((config.loginjid + '@' + config.xmppdomain), config.loginpw)
+xmpp = sleekxmpp.ClientXMPP((config.loginjid + '@' + config.xmppdomain), config.loginpw)
 xmpp.register_plugin('xep_0030') # Service Discovery
 xmpp.register_plugin('xep_0004') # Data Forms
 xmpp.register_plugin('xep_0060') # PubSub
@@ -120,23 +125,24 @@ def processRequest(req):
 
     except:
         parameters=None
-    
+
 
     else:
         data['command']=command
         data['request']=request
         data['timestamp']= str(int(time.time()))
         data['results']=[]
+        reqtime=time.time()
+
         if request=='get':
 
             if command in("error_reporting","diagnostic_hdd","diagnostic_tuner","diagnostic_speed_test","system_information","volume",
                 "current_viewing","current_programme","stb_model","dvbt_services","planner"):
                  # if if is in a list of supported get stanzas
 
-                for box in boxes:
 
-                    listitem = xmpp.get_cmd(command,box,'iq3')
-                    data['results'].append(listitem)
+                data['results']=xmpp['iq3'].get_cmd(command,boxes,'iq3')
+
 
             elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):
                  # if its a stanza but does not support a get
@@ -153,16 +159,15 @@ def processRequest(req):
             data['error']= "Have not implemented set yet"
         else:
             data['error']= "Request must either be a set or get!"
-
+        data['response_time'] = float(time.time()-reqtime)
         return data
 # once xmpp client is connected - send presence and roster as expected
 def session_start(e):
     xmpp.get_roster()
     xmpp.send_presence()
 
-
 xmpp.add_event_handler('session_start', session_start) # xmpp session start handler
-
+# xmpp.registerHandler(Callback('iq3_resp', MatchXPath('{foxtel:iq}system_information'), iq3_resp)) # xmpp handler for replies
 if __name__ == '__main__':
     xmpp.connect() # connect to xmpp server
     xmpp.process(block=False) #process xmpp stuff

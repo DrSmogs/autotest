@@ -1,76 +1,6 @@
 
 from sleekxmpp.xmlstream import ElementBase, ET
 
-# <iq type="set">
-#   <task id="123" xmlns="example:task">
-#     <command>python script.py</command>
-#     <cleanup>rm temp.txt</cleanup>
-#     <param>
-#       <name>foo</name>
-#       <value>fizz</value>
-#     </param>
-#     <param>
-#       <name>bar</name>
-#       <value>buzz</value>
-#     </param>
-#   </task>
-# </iq>
-
-
-# class Param(ElementBase):
-#     namespace = 'example:task'
-#     name = 'param'
-#     plugin_attrib = 'param'
-#     interfaces = set(('name', 'value'))
-#     sub_interfaces = interfaces
-#
-# class Task(ElementBase):
-#     namespace = 'example:task'
-#     name = 'task'
-#     plugin_attrib = 'task'
-#     interfaces = set(('id', 'command', 'cleanup', 'params'))
-#     sub_interfaces = set(('command', 'cleanup'))
-#     subitem = (Param,)
-#
-#     def getParams(self):
-#         params = {}
-#         for par in self.xml.findall('{%s}param' % Param.namespace):
-#             param = Param(par)
-#             params[param['name']] = param['value']
-#         return params
-#
-#     def setParams(self, params):
-#         # params is a dictonary
-#         for name in params:
-#             self.addParam(name, params[name])
-#
-#     def delParams(self):
-#         params = self.xml.findall('{%s}param' % Param.namespace)
-#         for param in params:
-#             self.xml.remove(param)
-#
-#     def addParam(self, name, value):
-#         # Use Param(None, self) to link the param object
-#         # with the task object.
-#         param_obj = Param(None, self)
-#         param_obj['name'] = name
-#         param_obj['value'] = value
-#
-#     def delParam(self, name):
-#         # Get all <param /> elements
-#         params = self.xml.findall('{%s}param' % Param.namespace)
-#         for parXML in params:
-#             # Create a stanza object to test against
-#             param = Param(parXML)
-#             # Remove <param /> element if name matches
-#             if param['name'] == name:
-#                 self.xml.remove(parXML)
-
-
-
-
-
-
 class error_reporting(ElementBase):
 
     namespace = "foxtel:iq"
@@ -79,16 +9,25 @@ class error_reporting(ElementBase):
     interfaces = set(('error_reporting','set_error','all_errors','get_error'))
     sub_interfaces = interfaces
 
+class Hdd(ElementBase):
+    namespace = 'foxtel:iq'
+    name = 'hdd'
+    plugin_attrib = 'hdd'
+    interfaces = set(('temperature'))
+    sub_interfaces = interfaces
+
+
 class diagnostic_hdd(ElementBase):
 
     namespace = "foxtel:iq"
     name = 'diagnostic_hdd'
     plugin_attrib = 'diagnostic_hdd'
-    interfaces = set(('diagnostic_hdd','hdd','reformat'))
-    sub_interfaces = interfaces
+    interfaces = set(('reformat','error'))
+    sub_interfaces = interfaces,
+    subitem = (Hdd,)
 
 
-class diagnostic_tuner(ElementBase):
+class diagnostic_tuner(ElementBase): #needs to be updated for sub stuff
 
     namespace = "foxtel:iq"
     name = 'diagnostic_tuner'
@@ -96,21 +35,29 @@ class diagnostic_tuner(ElementBase):
     interfaces = set(('diagnostic_tuner'))
     sub_interfaces = interfaces
 
+class Speed(ElementBase):
+
+    namespace = "foxtel:iq"
+    name = 'diagnostic_speed_test'
+    plugin_attrib = 'diagnostic_speed_test'
+    interfaces = set(('received','time'))
+    sub_interfaces = interfaces
 
 class diagnostic_speed_test(ElementBase):
 
     namespace = "foxtel:iq"
     name = 'diagnostic_speed_test'
     plugin_attrib = 'diagnostic_speed_test'
-    interfaces = set(('diagnostic_speed_test'))
+    interfaces = set(())
     sub_interfaces = interfaces
+    subitem = (Speed,)
 
 class system_information(ElementBase):
 
     namespace = "foxtel:iq"
     name = 'system_information'
     plugin_attrib = 'system_information'
-    interfaces = set(('system_information'))
+    interfaces = set(('manufacturer','hardware_version','software_version','serial_number','smartcard_number','fpn_firmware_version','epg_version'))
     sub_interfaces = interfaces
 
 class volume(ElementBase):
@@ -118,23 +65,55 @@ class volume(ElementBase):
     namespace = "foxtel:iq"
     name = 'volume'
     plugin_attrib = 'volume'
-    interfaces = set(('volume','current_volume','mute'))
+    interfaces = set(('current_volume','mute'))
     sub_interfaces = interfaces
 
 class current_viewing(ElementBase):
     namespace = "foxtel:iq"
     name = 'current_viewing'
     plugin_attrib = 'current_viewing'
-    interfaces = set(('current_viewing','current_channel'))
+    interfaces = set(('type','lcn','onid','tsid','svcid','servicekey','name'))
     sub_interfaces = interfaces
 
-class current_programme(ElementBase):
+class Programme(ElementBase):
+    namespace = 'foxtel:iq'
+    name = 'programme'
+    plugin_attrib = 'programme'
+    interfaces = set(('event_name', 'start_time','event_length','synopsys','genre','rating'))
+    sub_interfaces = interfaces
+
+
+
+class current_programme(ElementBase): # needs sub stuff
     namespace = "foxtel:iq"
     name = 'current_programme'
     plugin_attrib = 'current_programme'
-    interfaces = set(('current_programme','programme'))
+    interfaces = set(('event_name','start_time','event_length','synopsys','genre','rating'))
     sub_interfaces = interfaces
+    subitem = (Programme,)
 
+    def getEvent_Name(self):
+        value=self['programme']['event_name']
+        return value
+
+    def getStart_Time(self):
+        value=self['programme']['start_time']
+        return value
+
+    def getEvent_Length(self):
+        value=self['programme']['event_length']
+        return value
+
+    def getSynopsys(self):
+        value=self['programme']['synopsys']
+        return value
+    def getGenre(self):
+        value=self['programme']['genre']
+        return value
+
+    def getRating(self):
+        value=self['programme']['rating']
+        return value
 
 #this is not correct but will come back to it
 class remote_control(ElementBase):
@@ -192,7 +171,7 @@ class stb_model(ElementBase):
     interfaces = set(('stb_model'))
     sub_interfaces = interfaces
 
-class dvbt_services(ElementBase):
+class dvbt_services(ElementBase): # needs sub stuff
     namespace = "foxtel:iq"
     name = 'dvbt_services'
     plugin_attrib = 'dvbt_services'
