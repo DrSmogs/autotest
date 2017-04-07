@@ -60,7 +60,7 @@ class iq3(BasePlugin):
         starttime = time.time()
         endtime = starttime + timeout
         self.results = []
-        self.replies={}
+        self.replies=[]
         def iq3_cb(iq):
             self.responses =self.responses+1
             print("Recieved " + str(self.responses) + " out of " +str(len(self.boxes)) + " messages sent!")
@@ -115,6 +115,7 @@ class iq3(BasePlugin):
         print("timeout reached")
         for box in boxes:
             result = {}
+            
             if box not in self.replies:
                 result['box_id'] = box
                 result['error'] = 'This box timed out after ' + str(timeout) + ' seconds'
