@@ -60,7 +60,7 @@ class iq3(BasePlugin):
         starttime = time.time()
         endtime = starttime + timeout
         self.results = []
-
+        self.replies={}
         def iq3_cb(iq):
             self.responses =self.responses+1
             print("Recieved " + str(self.responses) + " out of " +str(len(self.boxes)) + " messages sent!")
@@ -69,6 +69,7 @@ class iq3(BasePlugin):
             boxid = boxid.split('.')[0]
             boxid = boxid.split('@')[0]
             result['box_id'] = boxid
+            self.replies.append(boxid)
             if 'error' in iq.loaded_plugins:
                 stanza='error'
                 result['error_type']=iq['error']['type']
@@ -112,7 +113,11 @@ class iq3(BasePlugin):
             else:
                 time.sleep(period)
         print("timeout reached")
-        return False
+        for box in boxes:
+            if box not in self.replies:
+                result['box_id'] = boxid
+                result['error'] = 'This box timed out after ' + str(timeout) + ' seconds'
+        return self.results
 
 
     def set_viewing(self, jid=None, tjid=None, resource=None, chan=None):
