@@ -114,7 +114,7 @@ class iq3(BasePlugin):
                 time.sleep(period)
         print("timeout reached")
         for box in boxes:
-        result = {}
+            result = {}
             if box not in self.replies:
                 result['box_id'] = box
                 result['error'] = 'This box timed out after ' + str(timeout) + ' seconds'
