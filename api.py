@@ -102,72 +102,90 @@ def auth_error():
 
 def processRequest(req):
     data={}
-    paramaters={}
+    parameters={}
     try:
         command=req.get('command')
         request=req.get('request')
         boxes = req.get('boxes')
-
-
-        if command is None:
-            return "No command"
-
-        if boxes is None:
-            return "No Boxes"
-
-        if request is None:
-            return "No request type!"
+        parameters=req.get('parameters')
+        timeout=req.get('timeout')
+        error = ''
     except:
         return "Error!!! something went wrong with the request"
 
-    try:
-        parameters=req.get('paramteters')
-
-    except:
-        parameters=None
-
-
     else:
-        data['command']=command
-        data['request']=request
+
+        if command is not None:
+            data['command']=command
+        else:
+            error= error + "Command was missing. "
+
+        if boxes is not None:
+            None
+        else:
+            error= error + "There are no boxes. "
+
+        if request is not None:
+            data['request']=request
+        else:
+            error= error + "Request type must be Set or Get. "
+
+        if timeout is None:
+            timeout = config.maxreqtimeout
+            error= error + "No timeout specified, using maxtimeout of " + str(timeout) + ". "
+
+        if timeout > config.maxreqtimeout:
+            error=error + 'Timeout of ' + str(timeout) + ' was greater than max timeout ' + str(config.maxreqtimeout) + '. '
+            timeout = config.maxreqtimeout
+
+        if parameters is not None:
+            data['parameters']=parameters
+        else:
+            error= error + "No Prameters set. "
+
+
+
+
         data['timestamp']= str(int(time.time()))
         data['results']=[]
+        data['timeout']=timeout
         reqtime=time.time()
 
         if request=='get':
 
             if command in("error_reporting","diagnostic_hdd","diagnostic_tuner","diagnostic_speed_test","system_information","volume",
-                "current_viewing","current_programme","stb_model","dvbt_services","planner"):
+                "current_viewing","current_programme","stb_model","dvbt_services","planner","key_value_pair"):
                  # if if is in a list of supported get stanzas
 
 
-                data['results']=xmpp['iq3'].get_cmd(command,boxes,'iq3')
+                data['results']=xmpp['iq3'].get_cmd(command,boxes,'iq3',timeout=timeout,params=parameters)
 
 
             elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):
                  # if its a stanza but does not support a get
 
-                data['error'] = "\'" + command + "\' does not support a get function."
+                error =error + "\'" + command + "\' does not support a get function. "
 
             else:
-                data['error'] = "Unknown command \'" + command + "\'."
+                error = error + "Unknown command \'" + command + "\'. "
 
 
         elif request=='set':
 
             #stuff for setting
-            data['error']= "Have not implemented set yet"
+            error=error+ "Have not implemented set yet. "
         else:
-            data['error']= "Request must either be a set or get!"
+            error=error+ "Request must either be a set or get. "
         data['response_time'] = float(time.time()-reqtime)
+        data['error'] = error
         return data
+
 # once xmpp client is connected - send presence and roster as expected
 def session_start(e):
     xmpp.get_roster()
     xmpp.send_presence()
 
 xmpp.add_event_handler('session_start', session_start) # xmpp session start handler
-# xmpp.registerHandler(Callback('iq3_resp', MatchXPath('{foxtel:iq}system_information'), iq3_resp)) # xmpp handler for replies
 if __name__ == '__main__':
     xmpp.connect() # connect to xmpp server
     xmpp.process(block=False) #process xmpp stuff
