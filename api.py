@@ -158,7 +158,7 @@ def processRequest(req):
                  # if if is in a list of supported get stanzas
 
 
-                data['results']=xmpp['iq3'].get_cmd(command,boxes,'iq3',timeout=timeout,params=parameters)
+                data['results']=xmpp['iq3'].iq3_cmd(request,command,boxes,'iq3',timeout=timeout,params=parameters)
 
 
             elif command in ("remote_booking", "code_download", "remote_control", "reset_pin", "reboot_stb"):
@@ -172,8 +172,25 @@ def processRequest(req):
 
         elif request=='set':
 
-            #stuff for setting
-            error=error+ "Have not implemented set yet. "
+            if command in("diagnostic_hdd","volume","current_viewing","reset_pin","reboot_stb","code_download"):
+                 # if if is in a list of supported set stanzas
+
+
+                data['results']=xmpp['iq3'].iq3_cmd(request,command,boxes,'iq3',timeout=timeout,params=parameters)
+
+
+            elif command in ("error_reporting", "diagnostic_tuner","diagnostic_speed_test","system_information",
+                "current_programme","stb_model","dvbt_services","planner","key_value_pair"):
+                 # if its a stanza but does not support a set
+
+                error =error + "\'" + command + "\' does not support a set function. "
+
+            else:
+                error = error + "Unknown command \'" + command + "\'. "
+
+
+
+
         else:
             error=error+ "Request must either be a set or get. "
         data['response_time'] = float(time.time()-reqtime)

@@ -55,7 +55,7 @@ class iq3(BasePlugin):
         register_stanza_plugin(Iq, planner)
         register_stanza_plugin(Iq, key_value_pair)
 
-    def get_cmd(self, cmd=None, boxes=None, jid=None, tjid=None, resource='iq3',timeout=None,params=None):
+    def iq3_cmd(self,request='get', cmd=None, boxes=None, jid=None, tjid=None, resource='iq3',timeout=None,params=None):
         self.testparam_start = 0
         self.testparam_qty = 5
         self.responses=0
@@ -80,8 +80,7 @@ class iq3(BasePlugin):
                 result['error_type']=iq['error']['type']
                 result['error_text']=iq['error']['text']
                 result['error_condition']=iq['error']['condition']
-                print(iq['error'])
-                print(iq['error'].keys())
+
 
             else:
                 stanza=next(iter(iq.loaded_plugins))
@@ -90,7 +89,10 @@ class iq3(BasePlugin):
                 for key in iq[stanza].keys():
                     if key not in ('lang', 'substanzas'):
                         if isinstance(iq[stanza][key],(str,dict,list)):
-                            result[key]=iq[stanza][key]
+                            if iq[stanza][key] =="":
+                                None
+                            else:
+                                result[key]=iq[stanza][key]
 
             self.results.append(result)
 
@@ -102,7 +104,7 @@ class iq3(BasePlugin):
             iq['to'] = box+config.boxloginpart+'@'+config.xmppdomain + "/" + resource
             iq['id'] = box + "-" + str(int(time.time()))
             iq['xml:lang'] = 'en'
-            iq['type'] = 'get'
+            iq['type'] = request
             for key in params.keys():
                 iq[cmd][key] = params[key]
 
@@ -133,18 +135,3 @@ class iq3(BasePlugin):
                     print(callback + " removed")
                     self.xmpp.remove_handler(cb_name)
         return self.results
-
-    def set_viewing(self, jid=None, tjid=None, resource=None, chan=None):
-        seqnr = "1234567"
-        iq = self.xmpp.Iq()
-        iq['from'] = jid + "/" + resource
-        iq['to'] = tjid + "/" + resource
-        iq['id'] = seqnr
-        iq['type'] = 'set'
-        iq['xml:lang'] = 'en'
-        iq['current_viewing']['current_channel'] = chan
-        iq.enable('current_viewing')
-        self.sessions[seqnr] = {"from": iq['from'], "to": iq['to'], "seqnr": seqnr, "name": "current_viewing", "namespace": "foxtel:iq"};
-        resp = iq.send(block=True)
-
-        return resp

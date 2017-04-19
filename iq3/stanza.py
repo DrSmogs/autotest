@@ -127,7 +127,7 @@ class volume(ElementBase): # working
     namespace = "foxtel:iq"
     name = 'volume'
     plugin_attrib = 'volume'
-    interfaces = set(('current_volume','mute'))
+    interfaces = set(('current_volume','mute','response'))
     sub_interfaces = interfaces
 
 class Broadcast(ElementBase): #working
@@ -141,7 +141,7 @@ class current_viewing(ElementBase): #working - only tested for broadcast
     namespace = "foxtel:iq"
     name = 'current_viewing'
     plugin_attrib = 'current_viewing'
-    interfaces = set(('type','lcn','onid','tsid','svcid','servicekey','name'))
+    interfaces = set(('type','lcn','onid','tsid','svcid','servicekey','name','current_channel','response','error'))
     sub_interfaces = interfaces
     subitem = (Broadcast,)
 
@@ -243,14 +243,14 @@ class reset_pin(ElementBase):
     namespace = "foxtel:iq"
     name = 'reset_pin'
     plugin_attrib = 'reset_pin'
-    interfaces = set(('reset_pin'))
+    interfaces = set(('response',))
     sub_interfaces = interfaces
 
 class reboot_stb(ElementBase):
     namespace = "foxtel:iq"
     name = 'reboot_stb'
     plugin_attrib = 'reboot_stb'
-    interfaces = set(('reboot_stb'))
+    interfaces = set(('response',))
     sub_interfaces = interfaces
 
 #needs a hash value... not sure how this works
@@ -258,7 +258,7 @@ class code_download(ElementBase):
     namespace = "foxtel:iq"
     name = 'code_download'
     plugin_attrib = 'code_download'
-    interfaces = set(('code_download','background','url'))
+    interfaces = set(('response','background','url'))
     sub_interfaces = interfaces
 
 class stb_model(ElementBase): # working - but box returned a blank
