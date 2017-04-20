@@ -253,8 +253,7 @@ class reboot_stb(ElementBase):
     interfaces = set(('response',))
     sub_interfaces = interfaces
 
-#needs a hash value... not sure how this works
-class code_download(ElementBase):
+class code_download(ElementBase): # working
     namespace = "foxtel:iq"
     name = 'code_download'
     plugin_attrib = 'code_download'

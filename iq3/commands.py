@@ -105,8 +105,9 @@ class iq3(BasePlugin):
             iq['id'] = box + "-" + str(int(time.time()))
             iq['xml:lang'] = 'en'
             iq['type'] = request
-            for key in params.keys():
-                iq[cmd][key] = params[key]
+            if params is not None:
+                for key in params.keys():
+                    iq[cmd][key] = params[key]
 
             iq.enable(cmd)
             cb_name = iq.send(callback=iq3_cb)

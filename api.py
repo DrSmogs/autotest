@@ -154,7 +154,7 @@ def processRequest(req):
         if request=='get':
 
             if command in("error_reporting","diagnostic_hdd","diagnostic_tuner","diagnostic_speed_test","system_information","volume",
-                "current_viewing","current_programme","stb_model","dvbt_services","planner","key_value_pair"):
+                "current_viewing","current_programme","stb_model","dvbt_services","planner","key_value_pair","epg_managment"):
                  # if if is in a list of supported get stanzas
 
 
