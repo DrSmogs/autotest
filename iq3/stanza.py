@@ -376,7 +376,7 @@ class key_value_pair(ElementBase): # working
 
     def getPairs(self):
         kvpsdict= {}
-        kvps=self.xml.findall('{foxtel:iq}pair')
+	kvps=self.xml.findall('{foxtel:iq}pair')
         for kvp in kvps:
             key = kvp.find('{foxtel:iq}key').text
             try:

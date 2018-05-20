@@ -77,22 +77,22 @@ class iq3(BasePlugin):
             self.replies.append(boxid)
             if 'error' in iq.loaded_plugins:
                 stanza='error'
-                result['error_type']=iq['error']['type']
+		result['error_type']=iq['error']['type']
                 result['error_text']=iq['error']['text']
                 result['error_condition']=iq['error']['condition']
-
-
             else:
-                stanza=next(iter(iq.loaded_plugins))
-                print("debug time !!!!!!!!!!!!!!!!!!!!")
-                print(iq[stanza].keys())
-                for key in iq[stanza].keys():
-                    if key not in ('lang', 'substanzas'):
-                        if isinstance(iq[stanza][key],(str,dict,list)):
-                            if iq[stanza][key] =="":
-                                None
-                            else:
-                                result[key]=iq[stanza][key]
+		stanza=next(iter(iq.loaded_plugins))
+#               print("debug time !!!!!!!!!!!!!!!!!!!!")
+#               print(iq[stanza].keys())
+
+
+	        for key in iq[stanza].keys():
+              		if key not in ('lang', 'substanzas'):
+        			if isinstance(iq[stanza][key],(str,dict,list)):
+                        		if iq[stanza][key] =="":
+                                		None
+					else:
+						result[key]=iq[stanza][key]
 
             self.results.append(result)
 
@@ -129,7 +129,8 @@ class iq3(BasePlugin):
 
             if box not in self.replies:
                 result['box_id'] = box
-                result['error'] = 'This box timed out after ' + str(timeout) + ' seconds'
+                result['error_condition']='Timeout'
+                result['error_text'] = 'This box timed out after ' + str(timeout) + ' seconds'
                 self.results.append(result)
 
                 for callback in self.callbacks: #Remove any callbackls generated
